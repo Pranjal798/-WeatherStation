@@ -35,22 +35,37 @@ app = FastAPI()
 
 @app.post("/weather")
 async def receive_weather_ecowitt(
+    request: Request,
     tempf: float = Form(...),
     humidity: int = Form(...),
     baromrelin: float = Form(...)
 ):
     try:
-        # Convert Fahrenheit to Celsius
-        temp_c = (tempf - 32) * 5.0/9.0
-        pressure = baromrelin * 33.8639  # inHg to hPa
+        # Convert Fahrenheit to Celsius and inHg to hPa
+        temp_c = (tempf - 32) * 5.0 / 9.0
+        pressure_hpa = baromrelin * 33.8639
 
+        # Update in-memory storage
         latest_data.update({
             "temperature": round(temp_c, 2),
             "humidity": humidity,
-            "pressure": round(pressure, 2)
+            "pressure": round(pressure_hpa, 2)
         })
-        return JSONResponse(content={"status": "received", "data": latest_data})
+
+        # Log the full incoming form data
+        form_data = await request.form()
+        print("[✅ RECEIVED POST FROM WEATHER STATION]")
+        for k, v in form_data.items():
+            print(f"{k}: {v}")
+
+        return JSONResponse(content={
+            "status": "received",
+            "data": latest_data
+        })
+
     except Exception as e:
+        print("[❌ ERROR PARSING WEATHER DATA]")
+        print(str(e))
         return JSONResponse(status_code=400, content={"status": "error", "detail": str(e)})
 from fastapi.responses import HTMLResponse
 
