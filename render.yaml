@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: weather-agent
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python3 weather_agent.py
+    plan: free
+    autoDeploy: true

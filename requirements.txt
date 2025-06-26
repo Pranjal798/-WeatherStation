@@ -1,0 +1,4 @@
+uagents
+fastapi
+uvicorn
+pydantic
